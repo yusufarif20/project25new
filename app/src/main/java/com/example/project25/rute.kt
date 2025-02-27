@@ -15,6 +15,12 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.TextView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlin.random.Random
 
 class rute : AppCompatActivity() {
@@ -123,14 +129,14 @@ class rute : AppCompatActivity() {
         walls.add(findViewById(R.id.goa))
         walls.add(findViewById(R.id.harta))
 
-        val bintang = findViewById<TextView>(R.id.bintang)
+       // val bintang = findViewById<TextView>(R.id.bintang)
 
         lastPlayerX = intent.getFloatExtra("lastX", 0f)
         lastPlayerY = intent.getFloatExtra("lastY", 0f)
         monster = intent.getIntExtra("monster", 0)
-        star = intent.getIntExtra("star", 0)
+        //star = intent.getIntExtra("star", 0)
         Log.d("GameDadu", "Nilai star yang diterima: $star")
-        bintang.text = star.toString()
+        //bintang.text = star.toString()
 
         val completedString = intent.getStringExtra("completedHadiah") ?: ""
         if (completedString.isNotEmpty()) {
@@ -212,6 +218,8 @@ class rute : AppCompatActivity() {
         right.setOnTouchListener(touchListener)
         left.setOnTouchListener(touchListener)
 
+        listenUserStars()
+
         home.setOnClickListener {
             val intent = Intent(this, MainMenu::class.java)
             intent.putExtra("lastX", lastPlayerX)
@@ -220,6 +228,35 @@ class rute : AppCompatActivity() {
             intent.putExtra("star", star)
             startActivity(intent)
             finish()
+        }
+    }
+
+    private fun listenUserStars() {
+        val auth = FirebaseAuth.getInstance()
+        val user = auth.currentUser
+        val bintang = findViewById<TextView>(R.id.bintang)
+
+        if (user != null) {
+            val uid = user.uid
+            val database: DatabaseReference = FirebaseDatabase.getInstance().reference
+            val starsRef = database.child("users").child(uid).child("stars")
+
+            starsRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val stars = snapshot.getValue(Int::class.java) ?: 0
+                    Log.d("Get Stars", "Done + Stars didapat $stars")
+                    star = stars
+                    bintang.text = stars.toString()
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("Get Stars", "Failed")
+                    println("Gagal membaca stars: ${error.message}")
+                }
+            })
+        } else {
+            Log.d("Get Stars", "Done")
+            println("User belum login")
         }
     }
 
