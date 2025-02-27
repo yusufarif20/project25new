@@ -7,7 +7,11 @@ import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 class GameDadu : AppCompatActivity() {
     // Previous properties remain the same
@@ -76,6 +80,7 @@ class GameDadu : AppCompatActivity() {
     private var currentHadiah = 0
     private var completedHadiah = mutableSetOf<Int>()
 
+    private lateinit var auth: FirebaseAuth
     private lateinit var questionBackground: ImageView
     private lateinit var answerImageViews: List<ImageView>
     private lateinit var framesWithBorders: List<Pair<FrameLayout, ImageView>>
@@ -151,9 +156,33 @@ class GameDadu : AppCompatActivity() {
 
             startActivity(intent)
             finish()
+
         }
 
         loadQuestion(currentQuestionIndex)
+    }
+
+    private fun addStarsValue() {
+        val auth = FirebaseAuth.getInstance()
+        val user = auth.currentUser
+
+        if (user != null) {
+            val uid = user.uid
+            val db: DatabaseReference = FirebaseDatabase.getInstance().reference
+            val useraData = db.child("users").child(uid).child("stars")
+
+            useraData.get().addOnSuccessListener { snapshot ->
+                val currentStars = snapshot.getValue(Int::class.java) ?:0
+                useraData.setValue(currentStars + 1)
+
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "menerima point", Toast.LENGTH_SHORT).show()
+                    }
+            }
+
+
+        }
+
     }
 
     private fun checkAnswerAndUpdateScore() {
@@ -164,6 +193,7 @@ class GameDadu : AppCompatActivity() {
                 star++
                 True += 1
                 currentScore += 20
+                addStarsValue()
             } else {
                 False += 1
             }

@@ -450,13 +450,6 @@ class rute : AppCompatActivity() {
         val playerBounds = Rect()
         player.getGlobalVisibleRect(playerBounds)
 
-        if (Rect.intersects(robotBounds, playerBounds)) {
-            // Robot menangkap pemain, tambahkan penanganan sesuai gameplay Anda
-            Toast.makeText(this, "Robot menangkap Anda!", Toast.LENGTH_SHORT).show()
 
-            // Contoh: Reset posisi pemain atau kirim ke layar "Game Over"
-            // resetPlayerPosition() atau
-            // navigateToGameOver()
-        }
     }
 }

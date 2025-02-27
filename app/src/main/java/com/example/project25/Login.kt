@@ -43,11 +43,6 @@ class Login : AppCompatActivity() {
             val username = loginUsername.text.toString()
             val password = loginPassword.text.toString()
             loginUser(username, password)
-            val intent = Intent(this, MainMenu::class.java)
-            intent.putExtra("monster", monster)
-            startActivity(intent)
-            overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down)
-            finish()
         }
 
         buttonRegister.setOnClickListener {
@@ -62,6 +57,7 @@ class Login : AppCompatActivity() {
     private fun loginUser(username: String, password: String) {
         loadingProgressBar.visibility = View.VISIBLE
         if (username.isEmpty() || password.isEmpty()){
+            loadingProgressBar.visibility = View.GONE
             Toast.makeText(this, "Email ataupun password kosong", Toast.LENGTH_SHORT).show()
             return
         }
@@ -69,6 +65,11 @@ class Login : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful){
                     loadingProgressBar.visibility = View.GONE
+                    val intent = Intent(this, MainMenu::class.java)
+                    intent.putExtra("monster", monster)
+                    startActivity(intent)
+                    overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_down)
+                    finish()
                 } else {
                     Toast.makeText(this, "gagal login", Toast.LENGTH_SHORT).show()
                 }
