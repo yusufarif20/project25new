@@ -168,19 +168,24 @@ class GameDadu : AppCompatActivity() {
 
         if (user != null) {
             val uid = user.uid
-            val db: DatabaseReference = FirebaseDatabase.getInstance().reference
-            val useraData = db.child("users").child(uid).child("stars")
+            val database: DatabaseReference = FirebaseDatabase.getInstance().reference
 
-            useraData.get().addOnSuccessListener { snapshot ->
-                val currentStars = snapshot.getValue(Int::class.java) ?:0
-                useraData.setValue(currentStars + 1)
+            val userRef = database.child("users").child(uid).child("stars")
 
+            userRef.get().addOnSuccessListener { snapshot ->
+                val currentStars = snapshot.getValue(Int::class.java) ?: 0
+                userRef.setValue(currentStars + 1)
                     .addOnSuccessListener {
-                        Toast.makeText(this, "menerima point", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Berhasil Klaim poin", Toast.LENGTH_SHORT).show()
                     }
+                    .addOnFailureListener { e ->
+                        println("Gagal menambahkan stars: ${e.message}")
+                    }
+            }.addOnFailureListener { e ->
+                println("Gagal mengambil data stars: ${e.message}")
             }
-
-
+        } else {
+            println("User belum login")
         }
 
     }

@@ -65,6 +65,7 @@ class Login : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful){
                     loadingProgressBar.visibility = View.GONE
+                    //add interact to homepage
                     val intent = Intent(this, MainMenu::class.java)
                     intent.putExtra("monster", monster)
                     startActivity(intent)
